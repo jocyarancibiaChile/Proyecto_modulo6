@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar — AlkeWallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --surface2: #1a1a24;
+            --border: #2a2a3a;
+            --accent: #7c6bff;
+            --accent2: #ff6b9d;
+            --text: #e8e8f0;
+            --muted: #6b6b80;
+            --danger: #ef4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* Left panel */
+        .panel-left {
+            background: linear-gradient(135deg, #0e0e1a 0%, #16102b 100%);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-left::before {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            top: -150px; left: -150px;
+            background: radial-gradient(circle, rgba(124,107,255,0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .panel-left::after {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            bottom: -100px; right: -100px;
+            background: radial-gradient(circle, rgba(255,107,157,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .panel-content { position: relative; z-index: 2; text-align: center; }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 32px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .panel-tagline {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #e8e8f0;
+            max-width: 280px;
+            margin-bottom: 20px;
+        }
+
+        .panel-sub { color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 260px; }
+
+        /* Right panel - Form */
+        .panel-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .form-header {
+            margin-bottom: 36px;
+        }
+
+        .form-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 26px;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle { color: var(--muted); font-size: 14px; }
+
+        .form-group { margin-bottom: 20px; }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 13px 16px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124,107,255,0.1);
+        }
+
+        .form-input::placeholder { color: var(--muted); }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), #5b4ddd);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(124,107,255,0.35);
+        }
+
+        .form-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .form-footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
+        .form-footer a:hover { text-decoration: underline; }
+
+        .alert {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.2);
+            color: var(--danger);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            .panel-left { display: none; }
+            .panel-right { padding: 40px 24px; justify-content: flex-start; padding-top: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-left">
+        <div class="panel-content">
+            <div class="logo">AlkeWallet</div>
+            <p class="panel-tagline">Controla tu dinero, en cualquier lugar.</p>
+            <p class="panel-sub">Depósitos, transferencias y mucho más. Todo desde un solo lugar.</p>
+        </div>
+    </div>
+
+    <div class="panel-right">
+        <div class="form-container">
+            <div class="form-header">
+                <h1 class="form-title">Bienvenido de nuevo</h1>
+                <p class="form-subtitle">Ingresa tus credenciales para continuar</p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">✗ {{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Usuario</label>
+                    <input type="text" name="username" class="form-input" placeholder="tu_usuario" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-submit">Ingresar →</button>
+            </form>
+
+            <div class="form-footer">
+                ¿No tienes cuenta? <a href="{% url 'registro' %}">Crea una gratis</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

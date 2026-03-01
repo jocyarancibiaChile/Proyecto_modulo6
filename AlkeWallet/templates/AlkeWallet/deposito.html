@@ -1,0 +1,104 @@
+{% extends 'AlkeWallet/base.html' %}
+{% block title %}Depositar — AlkeWallet{% endblock %}
+
+{% block extra_head %}
+<style>
+    .deposit-container { max-width: 520px; }
+
+    .amount-presets {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .preset-btn {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        color: var(--text);
+        font-family: 'Syne', sans-serif;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .preset-btn:hover, .preset-btn.active {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(124,107,255,0.08);
+    }
+
+    .saldo-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(124,107,255,0.08);
+        border: 1px solid rgba(124,107,255,0.15);
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 13px;
+        color: var(--accent);
+        margin-bottom: 28px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Depositar fondos</h1>
+    <p class="page-subtitle">Recarga tu billetera de forma instantánea</p>
+</div>
+
+<div class="deposit-container">
+    <div class="saldo-tag">
+        ◎ Saldo actual: ${{ request.user.wallet.balance|floatformat:2 }}
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Monto a depositar</h2>
+
+        <div class="amount-presets">
+            <button class="preset-btn" onclick="setAmount(50000)">$50.000</button>
+            <button class="preset-btn" onclick="setAmount(200000)">$200.000</button>
+            <button class="preset-btn" onclick="setAmount(20000)">$20.000</button>
+            <button class="preset-btn" onclick="setAmount(100000)">$100.000</button>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="flex gap-2" style="margin-top: 8px;">
+                <button type="submit" class="btn btn-primary btn-full">
+                    ↓ Confirmar depósito
+                </button>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setAmount(val) {
+    document.querySelector('input[name="amount"]').value = val;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+}
+</script>
+{% endblock %}

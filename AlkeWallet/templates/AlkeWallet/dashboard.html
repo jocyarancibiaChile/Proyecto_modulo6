@@ -1,0 +1,251 @@
+{% extends 'AlkeWallet/base.html' %}
+
+{% block title %}Dashboard — AlkeWallet{% endblock %}
+
+{% block extra_head %}
+<style>
+    .balance-card {
+        background: linear-gradient(135deg, #16102b 0%, #0e1420 100%);
+        border: 1px solid rgba(124,107,255,0.2);
+        border-radius: 20px;
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .balance-card::before {
+        content: '';
+        position: absolute;
+        width: 300px; height: 300px;
+        top: -100px; right: -80px;
+        background: radial-gradient(circle, rgba(124,107,255,0.15) 0%, transparent 70%);
+    }
+
+    .balance-card::after {
+        content: '';
+        position: absolute;
+        width: 200px; height: 200px;
+        bottom: -80px; left: -50px;
+        background: radial-gradient(circle, rgba(255,107,157,0.1) 0%, transparent 70%);
+    }
+
+    .balance-content { position: relative; z-index: 2; }
+
+    .balance-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: rgba(107,107,128,0.9);
+        margin-bottom: 12px;
+    }
+
+    .balance-amount {
+        font-family: 'Syne', sans-serif;
+        font-weight: 800;
+        font-size: 52px;
+        letter-spacing: -2px;
+        line-height: 1;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #fff 40%, rgba(124,107,255,0.8));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .account-number {
+        font-size: 12px;
+        color: rgba(107,107,128,0.7);
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .quick-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .quick-btn-primary {
+        background: linear-gradient(135deg, var(--accent), #5b4ddd);
+        color: white;
+    }
+
+    .quick-btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(124,107,255,0.35);
+    }
+
+    .quick-btn-secondary {
+        background: rgba(255,255,255,0.06);
+        color: var(--text);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .quick-btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    /* Stats grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    .stat-amount {
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 22px;
+        letter-spacing: -0.5px;
+    }
+
+    /* Transactions */
+    .tx-list { }
+
+    .tx-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(42,42,58,0.6);
+    }
+
+    .tx-item:last-child { border-bottom: none; }
+
+    .tx-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .tx-icon-deposito { background: rgba(34,197,94,0.1); color: #22c55e; }
+    .tx-icon-envio { background: rgba(239,68,68,0.1); color: #ef4444; }
+    .tx-icon-recepcion { background: rgba(107,255,207,0.1); color: #6bffcf; }
+
+    .tx-info { flex: 1; }
+    .tx-desc { font-size: 14px; font-weight: 500; }
+    .tx-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .tx-amount {
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+    }
+
+    .tx-amount.positive { color: #22c55e; }
+    .tx-amount.negative { color: #ef4444; }
+
+    @media (max-width: 600px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .balance-amount { font-size: 36px; }
+        .quick-actions { flex-wrap: wrap; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Hola, {{ user.first_name|default:user.username }} 👋</h1>
+    <p class="page-subtitle">Acá tienes un resumen de tu actividad financiera</p>
+</div>
+
+<!-- Balance Card -->
+<div class="balance-card">
+    <div class="balance-content">
+        <div class="balance-label">Saldo disponible</div>
+        <div class="balance-amount">${{ wallet.balance|floatformat:2 }}</div>
+        <div class="account-number">Cuenta N° {{ wallet.account_number }}</div>
+        <div class="quick-actions">
+            <a href="{% url 'deposito' %}" class="quick-btn quick-btn-primary">↓ Depositar</a>
+            <a href="{% url 'envio_dinero' %}" class="quick-btn quick-btn-secondary">→ Enviar</a>
+            <a href="{% url 'transacciones' %}" class="quick-btn quick-btn-secondary">↕ Historial</a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total depositado</div>
+        <div class="stat-amount" style="color: var(--accent3)">${{ total_depositos|floatformat:2 }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total enviado</div>
+        <div class="stat-amount" style="color: var(--accent2)">${{ total_enviado|floatformat:2 }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total recibido</div>
+        <div class="stat-amount" style="color: var(--success)">${{ total_recibido|floatformat:2 }}</div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="card">
+    <div class="flex-between mb-3">
+        <h2 class="card-title" style="margin-bottom:0">Últimos movimientos</h2>
+        <a href="{% url 'transacciones' %}" style="color:var(--accent); font-size:13px; text-decoration:none;">Ver todos →</a>
+    </div>
+
+    {% if recent_transactions %}
+        <div class="tx-list">
+            {% for tx in recent_transactions %}
+            <div class="tx-item">
+                <div class="tx-icon tx-icon-{{ tx.tipo }}">
+                    {% if tx.tipo == 'deposito' %}↓
+                    {% elif tx.tipo == 'envio' %}→
+                    {% else %}←{% endif %}
+                </div>
+                <div class="tx-info">
+                    <div class="tx-desc">{{ tx.description|truncatechars:40 }}</div>
+                    <div class="tx-date">{{ tx.created_at|date:"d M Y, H:i" }} · Ref #{{ tx.reference }}</div>
+                </div>
+                <div class="tx-amount {% if tx.tipo == 'envio' %}negative{% else %}positive{% endif %}">
+                    {% if tx.tipo == 'envio' %}-{% else %}+{% endif %}${{ tx.amount|floatformat:2 }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center" style="padding: 40px 0; color: var(--muted);">
+            <div style="font-size: 36px; margin-bottom: 12px;">⬡</div>
+            <p>Sin movimientos todavía.</p>
+            <a href="{% url 'deposito' %}" style="color:var(--accent); font-size:14px;">Haz tu primer depósito →</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

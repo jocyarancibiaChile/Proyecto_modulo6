@@ -1,0 +1,136 @@
+{% extends 'AlkeWallet/base.html' %}
+{% block title %}Enviar dinero — AlkeWallet{% endblock %}
+
+{% block extra_head %}
+<style>
+    .send-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+
+    .contact-list-panel { }
+
+    .contact-card-small {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .contact-card-small:hover {
+        background: var(--surface2);
+        border-color: rgba(124,107,255,0.2);
+    }
+
+    .c-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .c-name { font-size: 14px; font-weight: 500; }
+    .c-username { font-size: 12px; color: var(--muted); }
+
+    .saldo-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(124,107,255,0.08);
+        border: 1px solid rgba(124,107,255,0.15);
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 13px;
+        color: var(--accent);
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+        .send-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Enviar dinero</h1>
+    <p class="page-subtitle">Transferir a cualquier usuario de AlkeWallet al instante</p>
+</div>
+
+<div class="saldo-tag">
+    ◎ Saldo disponible: ${{ request.user.wallet.balance|floatformat:2 }}
+</div>
+
+<div class="send-grid">
+    <!-- Form -->
+    <div class="card">
+        <h2 class="card-title">Datos de la transferencia</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius:10px; padding:12px; margin-bottom:20px; font-size:13px; color:#f59e0b;">
+                ⚠ Los envíos son inmediatos e irreversibles. Verifica los datos antes de confirmar.
+            </div>
+
+            <div class="flex gap-2">
+                <button type="submit" class="btn btn-primary btn-full">→ Enviar dinero</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Contacts panel -->
+    <div class="card">
+        <h2 class="card-title">Mis contactos</h2>
+        {% if contacts %}
+    {% for contact in contacts %}
+    <div class="contact-card-small" onclick="fillContact('{{ contact.numero_cuenta }}')">
+        <div class="c-avatar">{{ contact.nombre|first|upper }}</div>
+        <div>
+            <div class="c-name">{{ contact.alias|default:contact.nombre }}</div>
+            <div class="c-username">{{ contact.get_banco_display }}</div>
+            <div class="c-username">N° {{ contact.numero_cuenta }}</div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="text-center" style="padding:24px 0; color:var(--muted);">
+        <div style="font-size:28px; margin-bottom:10px;">◎</div>
+        <p style="font-size:13px;">Sin contactos guardados.</p>
+        <a href="{% url 'contactos' %}" style="color:var(--accent); font-size:13px;">Agregar contacto →</a>
+    </div>
+{% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function fillContact(numeroCuenta) {
+        const select = document.querySelector('select[name="destinatario"]');
+        if (select) {
+            select.value = numeroCuenta;
+        }
+    }
+</script>
+{% endblock %}
